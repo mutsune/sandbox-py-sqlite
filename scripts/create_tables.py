@@ -2,6 +2,7 @@ from pathlib import Path
 import sqlite3
 import os
 
+
 # 正しいパスを構築
 ddl_file_path = os.path.join(os.path.dirname(__file__), "ddl", "ddl.sql")
 

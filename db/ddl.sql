@@ -1,4 +1,2 @@
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
-    username TEXT
-);
+CREATE TABLE IF NOT EXISTS
+    users (id INTEGER PRIMARY KEY, username TEXT);
