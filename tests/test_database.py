@@ -1,16 +1,20 @@
 import sqlite3
-import pytest
+from pathlib import Path
 from sqlite3 import Connection
-from src.app import create_table, add_user, get_user
+
+import pytest
+
+from db import setup_db
+from src.app import add_user, get_user
 
 
 @pytest.fixture
 def db_connection() -> Connection:
-    # use a temporary database for tests
-    connection: Connection = sqlite3.connect(":memory:")
-    create_table(connection)
-    yield connection
-    connection.close()
+    ddl_file = "db/ddl/ddl.sql"
+    ddl = Path(ddl_file).read_text()
+    with sqlite3.connect(":memory:") as connection:
+        setup_db.exec_ddl(connection, ddl)
+        yield connection
 
 
 def test_add_and_get_user(db_connection: Connection) -> None:
