@@ -1,29 +1,44 @@
-import sqlite3
-from sqlite3 import Connection, Cursor
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
-def create_connection(database_path: str) -> Connection:
-    return sqlite3.connect(database_path)
+class Base(DeclarativeBase):
+    pass
 
 
-def add_user(connection: Connection, username: str) -> int:
-    cursor: Cursor = connection.cursor()
-    cursor.execute("""INSERT INTO users (username) VALUES (?)""", (username,))
-    connection.commit()
-    return cursor.lastrowid
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
 
 
-def get_user(connection: Connection, user_id: int) -> tuple:
-    cursor: Cursor = connection.cursor()
-    cursor.execute("""SELECT * FROM users WHERE id=?""", (user_id,))
-    return cursor.fetchone()
+def create_session(database_url: str):
+    engine = create_engine(database_url)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+def add_user(session: Session, username: str) -> int:
+    user = User(username=username)
+    session.add(user)
+    session.commit()
+    return user.id
+
+
+def get_user(session: Session, user_id: int) -> User:
+    result = session.query(User)
+    return result.filter_by(id=user_id).first()
+
+
+def main(database_url: str):
+    with create_session(database_url) as session:
+        user_id = add_user(session, "John Doe")
+        print(f"Added user with ID {user_id}")
+
+        user = get_user(session, user_id)
+        print(f"Got user: {user.id}, {user.username}")
 
 
 if __name__ == "__main__":
-    database_path = "my_database.db"
-    with create_connection(database_path) as connection:
-        user_id = add_user(connection, "John Doe")
-        print(f"Added user with ID {user_id}")
-
-        user = get_user(connection, user_id)
-        print(f"Got user: {user}")
+    main("sqlite:///my_database.db")
