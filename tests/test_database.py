@@ -1,11 +1,13 @@
+import sqlite3
 import pytest
 from sqlite3 import Connection
-from src.app import create_connection, create_table, add_user, get_user
+from src.app import create_table, add_user, get_user
 
 
 @pytest.fixture
 def db_connection() -> Connection:
-    connection: Connection = create_connection()
+    # use a temporary database for tests
+    connection: Connection = sqlite3.connect(":memory:")
     create_table(connection)
     yield connection
     connection.close()
