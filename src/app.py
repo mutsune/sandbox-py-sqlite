@@ -1,8 +1,10 @@
 import sqlite3
 from sqlite3 import Connection, Cursor
 
+DATABASE_PATH = "my_database.db"
+
 def create_connection() -> Connection:
-    connection: Connection = sqlite3.connect(':memory:')
+    connection: Connection = sqlite3.connect(DATABASE_PATH)
     return connection
 
 def create_table(connection: Connection) -> None:
