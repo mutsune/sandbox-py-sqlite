@@ -1,12 +1,9 @@
 import sqlite3
 from sqlite3 import Connection, Cursor
 
-DATABASE_PATH = "my_database.db"
 
-
-def create_connection() -> Connection:
-    connection: Connection = sqlite3.connect(DATABASE_PATH)
-    return connection
+def create_connection(database_path: str) -> Connection:
+    return sqlite3.connect(database_path)
 
 
 def add_user(connection: Connection, username: str) -> int:
@@ -23,7 +20,8 @@ def get_user(connection: Connection, user_id: int) -> tuple:
 
 
 if __name__ == "__main__":
-    with create_connection() as connection:
+    database_path = "my_database.db"
+    with create_connection(database_path) as connection:
         user_id = add_user(connection, "John Doe")
         print(f"Added user with ID {user_id}")
 
