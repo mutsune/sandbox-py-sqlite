@@ -15,8 +15,8 @@ class User(Base):
 
 def create_session(database_url: str):
     engine = create_engine(database_url)
-    Session = sessionmaker(bind=engine)
-    return Session()
+    session = sessionmaker(bind=engine)
+    return session()
 
 
 def add_user(session: Session, username: str) -> int:
