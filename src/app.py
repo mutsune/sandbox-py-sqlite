@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, create_engine
+from typing import Optional
+
+from sqlalchemy import Column, Integer, String, create_engine, select, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
@@ -9,7 +11,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     username = Column(String)
 
 
@@ -23,12 +25,14 @@ def add_user(session: Session, username: str) -> int:
     user = User(username=username)
     session.add(user)
     session.commit()
-    return user.id
+    return user.user_id
 
 
-def get_user(session: Session, user_id: int) -> User:
-    result = session.query(User)
-    return result.filter_by(id=user_id).first()
+def find_user(session: Session, user_id: int) -> Optional[User]:
+    stmt = text("SELECT * FROM users WHERE user_id = :user_id").bindparams(
+        user_id=user_id,
+    )
+    return session.scalars(select(User).from_statement(stmt)).one_or_none()
 
 
 def main(database_url: str):
@@ -36,8 +40,8 @@ def main(database_url: str):
         user_id = add_user(session, "John Doe")
         print(f"Added user with ID {user_id}")
 
-        user = get_user(session, user_id)
-        print(f"Got user: {user.id}, {user.username}")
+        user = find_user(session, user_id)
+        print(f"Got user: {user.user_id}, {user.username}")
 
 
 if __name__ == "__main__":

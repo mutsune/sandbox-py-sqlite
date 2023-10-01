@@ -1,2 +1,2 @@
 CREATE TABLE IF NOT EXISTS
-    users (id INTEGER PRIMARY KEY, username TEXT);
+    users (user_id INTEGER PRIMARY KEY, username TEXT);

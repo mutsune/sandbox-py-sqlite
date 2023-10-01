@@ -1,11 +1,14 @@
 import argparse
-import sqlite3
 from pathlib import Path
 
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session, sessionmaker
 
-def exec_ddl(connection: sqlite3.Connection, ddl: str) -> None:
-    cursor = connection.cursor()
-    cursor.executescript(ddl)
+
+def exec_ddl(session: Session, ddl: str) -> None:
+    sql_text = text(ddl)
+    session.execute(sql_text)
+    session.commit()
 
 
 def parse_args() -> argparse.Namespace:
@@ -17,9 +20,11 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
-    db_file = args.db
+    db_file = f"sqlite:///{args.db}"
     ddl_file = args.ddl
 
+    engine = create_engine(db_file)
+    session_maker = sessionmaker(bind=engine)
     ddl = Path(ddl_file).read_text()
-    with sqlite3.connect(db_file) as connection:
-        exec_ddl(connection, ddl)
+    with session_maker() as session:
+        exec_ddl(session, ddl)
